@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.YaopinDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.gongyingshang_id as gongyingshangId
+        ,a.yaopin_uuid_number as yaopinUuidNumber
+        ,a.yaopin_name as yaopinName
+        ,a.yaopin_gongxiao as yaopinGongxiao
+        ,a.yaopin_jibing as yaopinJibing
+        ,a.yaopin_photo as yaopinPhoto
+        ,a.yaopin_types as yaopinTypes
+        ,a.yaopin_kucun_number as yaopinKucunNumber
+        ,a.yaopin_jinjia_money as yaopinJinjiaMoney
+        ,a.yaopin_xiaoshou_money as yaopinXiaoshouMoney
+        ,a.yaopin_content as yaopinContent
+        ,a.yaopin_delete as yaopinDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.YaopinView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,gongyingshang.gongyingshang_name as gongyingshangName
+        ,gongyingshang.gongyingshang_types as gongyingshangTypes
+        ,gongyingshang.gongyingshang_xinyongdengji_types as gongyingshangXinyongdengjiTypes
+        ,gongyingshang.gongyingshang_content as gongyingshangContent
+
+        FROM yaopin  a
+        left JOIN gongyingshang gongyingshang ON a.gongyingshang_id = gongyingshang.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.gongyingshangId != null and params.gongyingshangId != ''">
+                and (
+                    a.gongyingshang_id = #{params.gongyingshangId}
+                )
+            </if>
+            <if test=" params.yaopinUuidNumber != '' and params.yaopinUuidNumber != null and params.yaopinUuidNumber != 'null' ">
+                and a.yaopin_uuid_number like CONCAT('%',#{params.yaopinUuidNumber},'%')
+            </if>
+            <if test=" params.yaopinName != '' and params.yaopinName != null and params.yaopinName != 'null' ">
+                and a.yaopin_name like CONCAT('%',#{params.yaopinName},'%')
+            </if>
+            <if test=" params.yaopinGongxiao != '' and params.yaopinGongxiao != null and params.yaopinGongxiao != 'null' ">
+                and a.yaopin_gongxiao like CONCAT('%',#{params.yaopinGongxiao},'%')
+            </if>
+            <if test=" params.yaopinJibing != '' and params.yaopinJibing != null and params.yaopinJibing != 'null' ">
+                and a.yaopin_jibing like CONCAT('%',#{params.yaopinJibing},'%')
+            </if>
+            <if test="params.yaopinTypes != null and params.yaopinTypes != ''">
+                and a.yaopin_types = #{params.yaopinTypes}
+            </if>
+            <if test="params.yaopinKucunNumberStart != null and params.yaopinKucunNumberStart != ''">
+                <![CDATA[  and a.yaopin_kucun_number >= #{params.yaopinKucunNumberStart}   ]]>
+            </if>
+            <if test="params.yaopinKucunNumberEnd != null and params.yaopinKucunNumberEnd != ''">
+                <![CDATA[  and a.yaopin_kucun_number <= #{params.yaopinKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.yaopinKucunNumber != null and params.yaopinKucunNumber != ''">
+                and a.yaopin_kucun_number = #{params.yaopinKucunNumber}
+             </if>
+            <if test="params.yaopinJinjiaMoneyStart != null ">
+                <![CDATA[  and a.yaopin_jinjia_money >= #{params.yaopinJinjiaMoneyStart}   ]]>
+            </if>
+            <if test="params.yaopinJinjiaMoneyEnd != null ">
+                <![CDATA[  and a.yaopin_jinjia_money <= #{params.yaopinJinjiaMoneyEnd}   ]]>
+            </if>
+            <if test="params.yaopinXiaoshouMoneyStart != null ">
+                <![CDATA[  and a.yaopin_xiaoshou_money >= #{params.yaopinXiaoshouMoneyStart}   ]]>
+            </if>
+            <if test="params.yaopinXiaoshouMoneyEnd != null ">
+                <![CDATA[  and a.yaopin_xiaoshou_money <= #{params.yaopinXiaoshouMoneyEnd}   ]]>
+            </if>
+            <if test=" params.yaopinContent != '' and params.yaopinContent != null and params.yaopinContent != 'null' ">
+                and a.yaopin_content like CONCAT('%',#{params.yaopinContent},'%')
+            </if>
+            <if test="params.yaopinDeleteStart != null and params.yaopinDeleteStart != ''">
+                <![CDATA[  and a.yaopin_delete >= #{params.yaopinDeleteStart}   ]]>
+            </if>
+            <if test="params.yaopinDeleteEnd != null and params.yaopinDeleteEnd != ''">
+                <![CDATA[  and a.yaopin_delete <= #{params.yaopinDeleteEnd}   ]]>
+            </if>
+             <if test="params.yaopinDelete != null and params.yaopinDelete != ''">
+                and a.yaopin_delete = #{params.yaopinDelete}
+             </if>
+
+                <!-- 判断供应商信息的id不为空 -->
+            <if test=" params.gongyingshangIdNotNull != '' and params.gongyingshangIdNotNull != null and params.gongyingshangIdNotNull != 'null' ">
+                and a.gongyingshang_id IS NOT NULL
+            </if>
+            <if test=" params.gongyingshangName != '' and params.gongyingshangName != null and params.gongyingshangName != 'null' ">
+                and gongyingshang.gongyingshang_name like CONCAT('%',#{params.gongyingshangName},'%')
+            </if>
+            <if test="params.gongyingshangTypes != null  and params.gongyingshangTypes != ''">
+                and gongyingshang.gongyingshang_types = #{params.gongyingshangTypes}
+            </if>
+
+            <if test="params.gongyingshangXinyongdengjiTypes != null  and params.gongyingshangXinyongdengjiTypes != ''">
+                and gongyingshang.gongyingshang_xinyongdengji_types = #{params.gongyingshangXinyongdengjiTypes}
+            </if>
+
+            <if test=" params.gongyingshangContent != '' and params.gongyingshangContent != null and params.gongyingshangContent != 'null' ">
+                and gongyingshang.gongyingshang_content like CONCAT('%',#{params.gongyingshangContent},'%')
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
